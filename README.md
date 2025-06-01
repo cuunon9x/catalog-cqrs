@@ -2,6 +2,8 @@
 
 This project demonstrates the implementation of CQRS (Command Query Responsibility Segregation) pattern in a .NET Core application for managing a product catalog.
 
+![Screenshot 2025-06-01 151222](https://github.com/user-attachments/assets/7d5d0aa6-35ee-4efd-b132-d1a27beb223c)
+
 
 ## Project Structure
 
