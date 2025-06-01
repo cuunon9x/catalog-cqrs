@@ -1,13 +1,5 @@
 version: '3.8'
 
-networks:
-  catalog-network:
-    driver: bridge
-
-volumes:
-  postgres-data:
-    driver: local
-
 services:
   catalogapi:
     image: catalog-cqrs-api
@@ -56,3 +48,4 @@ networks:
 
 volumes:
   postgres-data:
+    driver: local

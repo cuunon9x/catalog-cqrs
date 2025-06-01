@@ -8,25 +8,29 @@ using Weasel.Core;
 namespace CatalogCQRS.Infrastructure.Configuration;
 
 public static class MartenConfig
-{    public static IServiceCollection AddMartenDb(this IServiceCollection services, IConfiguration configuration)
+{
+    public static IServiceCollection AddMartenDb(this IServiceCollection services, IConfiguration configuration)
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection") ??
             throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-        services.AddMarten(options =>
+        var store = DocumentStore.For(options =>
         {
+            var connectionString = configuration.GetConnectionString("DefaultConnection") ??
+                throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            
             options.Connection(connectionString);
             options.DatabaseSchemaName = "public";
             options.AutoCreateSchemaObjects = AutoCreate.All;
-
-            // Configure document mappings
-            options.Schema.For<Domain.Entities.Product>()
+              options.Schema.For<Domain.Entities.Product>()
                 .Index(x => x.Name)
                 .Index(x => x.Category)
                 .UseOptimisticConcurrency(true);
         });
 
-        // Register and execute initial data seeding
+        services.AddSingleton<IDocumentStore>(store);
+        services.AddScoped<IDocumentSession>(sp => sp.GetRequiredService<IDocumentStore>().LightweightSession());
+        services.AddScoped<IProductRepository, ProductRepository>();
         services.AddHostedService<DbInitializer>();
 
         return services;

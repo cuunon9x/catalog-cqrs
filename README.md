@@ -49,18 +49,37 @@ The solution follows Clean Architecture principles and consists of the following
 
 1. Install Prerequisites:
    - .NET 8.0 SDK
-   - PostgreSQL
+   - Docker Desktop
+   - Docker Compose
 
-2. Clone the repository
+2. Clone the repository:
+   ```powershell
+   git clone https://github.com/cuunon9x/catalog-cqrs.git
+   cd catalog-cqrs
+   ```
 
-3. Update the connection string in `appsettings.json`
+3. Start the infrastructure services (PostgreSQL and pgAdmin):
+   ```powershell
+   docker-compose up -d postgres pgadmin
+   ```
+   This will start:
+   - PostgreSQL on port 5432
+   - pgAdmin on http://localhost:5050 (email: admin@admin.com, password: admin)
 
-4. Run the migrations:
+4. Run the API:
    ```powershell
    dotnet run --project CatalogCQRS.API
    ```
+   
+5. Access the services:
+   - API and Swagger UI: https://localhost:5001/swagger
+   - Health Check: https://localhost:5001/health
+   - pgAdmin: http://localhost:5050
 
-5. The API will be available at `https://localhost:5001`
+6. (Optional) To run everything in Docker including the API:
+   ```powershell
+   docker-compose up -d
+   ```
 
 ## API Endpoints
 

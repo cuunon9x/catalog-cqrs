@@ -24,6 +24,9 @@ builder.Services.AddCors(options =>
 });
 
 // Add services to the container.
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
+
 // Add API versioning
 builder.Services.AddApiVersioning(options =>
 {
@@ -64,17 +67,19 @@ builder.Services.AddSwaggerGen(c =>
     c.OperationFilter<SecurityRequirementsOperationFilter>();
 });
 
-// Add MediatR and register handlers from the assembly containing our commands
-builder.Services.AddMediatR(typeof(CreateProductCommand).Assembly);
-
-// Add MediatR validation pipeline behavior
-builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+// Add MediatR
+builder.Services.AddMediatR(cfg => {
+    cfg.RegisterServicesFromAssemblyContaining<CreateProductCommand>();
+    // Add MediatR validation pipeline behavior
+    cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+});
 
 // Add FluentValidation
 builder.Services.AddValidatorsFromAssembly(typeof(CreateProductCommand).Assembly);
 
 // Add Carter for minimal APIs
 builder.Services.AddCarter();
+builder.Services.AddEndpointsApiExplorer();
 
 // Add Marten and Infrastructure services
 builder.Services.AddMartenDb(builder.Configuration);
@@ -135,11 +140,12 @@ app.UseCors("CatalogCorsPolicy");
 app.UseHttpsRedirection();
 app.UseRouting();
 
-// Rate limiting
-app.UseRateLimiter();
-
+// Security middleware in the correct order
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Rate limiting
+app.UseRateLimiter();
 
 // Custom middleware for request logging
 app.UseMiddleware<RequestLoggingMiddleware>();
